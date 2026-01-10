@@ -12,6 +12,8 @@ public:
 
   void dump_registers() const;
 
+  uint32_t get_pc() const { return pc; }
+
 private:
   uint32_t fetch();
   void execute(uint32_t instruction);
