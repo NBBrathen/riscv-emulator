@@ -299,5 +299,59 @@ void CPU::execute(uint32_t instruction) {
     }
     break;
   }
+  case 0x6F: { // J-Type: JAL (Jump and Link)
+    uint32_t rd = (instruction >> 7) & 0x1F;
+
+    int32_t imm_20 = (instruction >> 31) & 0x1;
+    int32_t imm_10_1 = (instruction >> 21) & 0x3FF;
+    int32_t imm_11 = (instruction >> 20) & 0x1;
+    int32_t imm_19_12 = (instruction >> 12) & 0xFF;
+
+    int32_t imm = (imm_20 ? 0xFFF00000 : 0) | (imm_19_12 << 12) |
+                  (imm_11 << 11) | (imm_10_1 << 1);
+
+    // This saves the return address (PC + 4) into the destination register
+    regs[rd] = pc;
+
+    // This updates PC to the target
+    pc = (pc - 4) + imm;
+
+    std::cout << "JAL: Saved RA to x" << rd << ", Jumping to " << std::hex << pc
+              << std::endl;
+    break;
+  }
+  case 0x67: { // I-Type: JALR (Jump and Link Register)
+    uint32_t rd = (instruction >> 7) & 0x1F;
+    uint32_t funct3 = (instruction >> 12) & 0x07;
+    uint32_t rs1 = (instruction >> 15) & 0x1F;
+    int32_t imm = (int32_t)(instruction >> 20);
+
+    // Calculate target address (rs1 + imm)
+    // Risc-v requires setting the least-significant bit to 0
+    uint32_t target_pc = (regs[rs1] + imm) & ~1;
+
+    regs[rd] = pc;
+
+    // JUMP!
+    pc = target_pc;
+
+    std::cout << "JALR: Jump to " << std::hex << pc << std::endl;
+    break;
+  }
+  case 0x37: { // U-Type: LUI (Load Upper Immediate)
+    uint32_t rd = (instruction >> 7) & 0x1F;
+    // Extract the top 20 bits and put them in the top of the register
+    int32_t imm = instruction & 0xFFFFF000;
+    regs[rd] = imm;
+    std::cout << "LUI: x" << rd << " = " << std::hex << imm << std::endl;
+    break;
+  }
+  case 0x17: { // U-Type: AUIPC (Add Upper Immediate to PC)
+    uint32_t rd = (instruction >> 7) & 0x1F;
+    int32_t imm = instruction & 0xFFFFF000;
+    regs[rd] = (pc - 4) + imm;
+    std::cout << "AUIPC: x" << rd << " = PC + " << std::hex << imm << std::endl;
+    break;
+  }
   }
 }
