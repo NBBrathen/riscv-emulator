@@ -2,10 +2,15 @@
 #include <cstdint>
 #include <iomanip>
 #include <iostream>
+#include <stdexcept>
 
 CPU::CPU(Memory &memory) : mem(memory) {
   pc = 0;
   regs.fill(0);
+
+  // The stack grows downwards, so we start at the end
+  regs[2] = mem.get_size();
+  regs[1] = 0xFFFFFFFF; // Return Address (Exit Code)
 }
 
 void CPU::step() {
@@ -47,6 +52,12 @@ void CPU::dump_registers() const {
 }
 
 uint32_t CPU::fetch() {
+
+  // Check for Exit Address
+  if ((pc & 0xFFFFFFFE) == 0xFFFFFFFE) {
+    throw std::runtime_error("Program finished (hit magic exit address).");
+  }
+
   // Read the 4 bytes from memory
   uint32_t inst = 0;
   inst |= mem.read(pc);             // Byte 1 (LSB)
@@ -65,7 +76,7 @@ void CPU::execute(uint32_t instruction) {
     uint32_t rd = (instruction >> 7) & 0x1F;
     uint32_t funct3 = (instruction >> 12) & 0x07;
     uint32_t rs1 = (instruction >> 15) & 0x1F;
-    int32_t imm = (int32_t)(instruction >> 20);
+    int32_t imm = (int32_t)(instruction & 0xFFF00000) >> 20;
 
     switch (funct3) {
     case 0x0: // ADDI
@@ -201,7 +212,7 @@ void CPU::execute(uint32_t instruction) {
     uint32_t rd = (instruction >> 7) & 0x1F;
     uint32_t funct3 = (instruction >> 12) & 0x07;
     uint32_t rs1 = (instruction >> 15) & 0x1F;
-    int32_t imm = (int32_t)(instruction >> 20);
+    int32_t imm = (int32_t)(instruction & 0xFFF00000) >> 20;
 
     uint32_t addr = regs[rs1] + imm;
 
@@ -324,7 +335,7 @@ void CPU::execute(uint32_t instruction) {
     uint32_t rd = (instruction >> 7) & 0x1F;
     uint32_t funct3 = (instruction >> 12) & 0x07;
     uint32_t rs1 = (instruction >> 15) & 0x1F;
-    int32_t imm = (int32_t)(instruction >> 20);
+    int32_t imm = (int32_t)(instruction & 0xFFF00000) >> 20;
 
     // Calculate target address (rs1 + imm)
     // Risc-v requires setting the least-significant bit to 0
