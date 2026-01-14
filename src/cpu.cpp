@@ -55,17 +55,10 @@ uint32_t CPU::fetch() {
 
   // Check for Exit Address
   if ((pc & 0xFFFFFFFE) == 0xFFFFFFFE) {
-    throw std::runtime_error("Program finished (hit magic exit address).");
+    throw std::runtime_error("Program finished.");
   }
 
-  // Read the 4 bytes from memory
-  uint32_t inst = 0;
-  inst |= mem.read(pc);             // Byte 1 (LSB)
-  inst |= (mem.read(pc + 1) << 8);  // Byte 2
-  inst |= (mem.read(pc + 2) << 16); // Byte 3
-  inst |= (mem.read(pc + 3) << 24); // Byte 4 (MSB)
-
-  return inst;
+  return mem.read_word(pc);
 }
 
 void CPU::execute(uint32_t instruction) {
@@ -327,8 +320,9 @@ void CPU::execute(uint32_t instruction) {
     // This updates PC to the target
     pc = (pc - 4) + imm;
 
-    std::cout << "JAL: Saved RA to x" << rd << ", Jumping to " << std::hex << pc
-              << std::endl;
+    // std::cout << "JAL: Saved RA to x" << rd << ", Jumping to " << std::hex <<
+    // pc
+    //         << std::endl;
     break;
   }
   case 0x67: { // I-Type: JALR (Jump and Link Register)

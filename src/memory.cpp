@@ -1,9 +1,19 @@
 #include "memory.h"
 #include <fstream>
 #include <iostream>
-#include <type_traits>
 
 Memory::Memory(size_t size) : data(size) {}
+
+uint32_t Memory::read_word(uint32_t address) {
+  if (address + 4 > data.size()) {
+    return 0;
+  }
+
+  uint32_t val = 0;
+  std::memcpy(&val, &data[address], 4);
+
+  return val;
+}
 
 uint8_t Memory::read(uint32_t address) {
   if (address >= data.size()) {

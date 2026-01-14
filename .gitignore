@@ -1,0 +1,10 @@
+# Build directory
+build/
+
+# Compiled binaries and objects
+*.bin
+*.elf
+*.o
+
+# OS specific garbage
+.DS_Store

@@ -1,5 +1,6 @@
 #include "cpu.h"
 #include "memory.h"
+#include <chrono>
 #include <iostream>
 
 int main(int argc, char *argv[]) {
@@ -38,6 +39,36 @@ int main(int argc, char *argv[]) {
   }
 
   cpu.dump_registers();
+
+  std::cout << "\nSTARTING BENCHMARK...\n=====================" << std::endl;
+  ram.write(0, 0x6F);
+  ram.write(1, 0x00);
+  ram.write(2, 0x00);
+  ram.write(3, 0x00);
+
+  CPU bench_cpu(ram);
+
+  auto start = std::chrono::high_resolution_clock::now();
+  uint64_t cycles = 0;
+
+  while (true) {
+    bench_cpu.step();
+    cycles++;
+
+    if (cycles % 100000 == 0) {
+      auto now = std::chrono::high_resolution_clock::now();
+      std::chrono::duration<double> diff = now - start;
+      if (diff.count() >= 1.0)
+        break; // stop after 1 second
+    }
+  }
+
+  double mips = cycles / 1000000.0;
+  std::cout << "---------------------------------------------------------------"
+            << std::endl;
+  std::cout << "Performance: " << mips << " MIPS" << std::endl;
+  std::cout << "---------------------------------------------------------------"
+            << std::endl;
 
   return 0;
 }

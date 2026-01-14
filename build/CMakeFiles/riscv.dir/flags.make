@@ -6,5 +6,5 @@ CXX_DEFINES =
 
 CXX_INCLUDES = -I/home/nbrathen/Desktop/Projects/riscv-emulator/src
 
-CXX_FLAGS = -std=c++20
+CXX_FLAGS =  -O3 -march=native -std=c++20
 
