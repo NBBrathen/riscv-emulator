@@ -1,1 +1,0 @@
-/usr/bin/c++  -O3 -march=native -Wl,--dependency-file=CMakeFiles/riscv.dir/link.d CMakeFiles/riscv.dir/src/cpu.cpp.o CMakeFiles/riscv.dir/src/main.cpp.o CMakeFiles/riscv.dir/src/memory.cpp.o -o riscv
