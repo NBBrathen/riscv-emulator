@@ -135,9 +135,7 @@ Contributions are welcome! Please follow these guidelines:
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/your-feature`)
-3. Write tests for new functionality
-4. Ensure all tests pass (`make test`)
-5. Submit a pull request with a clear description of changes
+3. Submit a pull request with a clear description of changes
 
 ## License
 
